@@ -19,7 +19,7 @@ class Transaction {
 class Block {
 
     // Number only used once, used as the solution for mining
-    public nonce = Math.round(Math.random() * 999999999);
+    public numOnlyUsedOnce = Math.round(Math.random() * 999999999);
 
     constructor(
         public prevHash: string,
@@ -56,14 +56,14 @@ class Chain {
     }
 
     // Mine a block to confirm it as a transaction on the blockchain
-    mine(nonce: number) {
+    mine(numOnlyUsedOnce: number) {
         let solution = 1;
         console.log('🐢 Mining TurtleCoin...')
 
         // Keep looping until solution is found
         while(true) {
             const hash = crypto.createHash('MD5');
-            hash.update((nonce + solution).toString()).end();
+            hash.update((numOnlyUsedOnce + solution).toString()).end();
 
             const attempt = hash.digest('hex')
 
@@ -89,7 +89,7 @@ class Chain {
         // If it is valid, create a block, mine it and add it to the blockchain
         if (isValid) {
             const newBlock = new Block(this.lastBlock.hash, transaction);
-            this.mine(newBlock.nonce);
+            this.mine(newBlock.numOnlyUsedOnce);
             this.chain.push(newBlock);
         }
     }
