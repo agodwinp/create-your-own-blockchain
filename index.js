@@ -20,25 +20,28 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = __importStar(require("crypto"));
+// Transaction class
 class Transaction {
-    constructor(amount, payer, // public key
-    payee // public key
-    ) {
+    constructor(amount, payer, payee) {
         this.amount = amount;
         this.payer = payer;
         this.payee = payee;
     }
+    // Serialise transaction as a string
     toString() {
         return JSON.stringify(this);
     }
 }
+// Block class
 class Block {
     constructor(prevHash, transaction, ts = Date.now()) {
         this.prevHash = prevHash;
         this.transaction = transaction;
         this.ts = ts;
-        this.nonce = Math.round(Math.random() * 999999999);
+        // Number only used once, used as the solution for mining
+        this.numOnlyUsedOnce = Math.round(Math.random() * 999999999);
     }
+    // Getter method to return a hash of this block
     get hash() {
         const str = JSON.stringify(this);
         const hash = crypto.createHash('SHA256');
@@ -46,40 +49,54 @@ class Block {
         return hash.digest('hex');
     }
 }
+// Chain class
 class Chain {
+    // Create genesis block
     constructor() {
         this.chain = [new Block('', new Transaction(100, 'genesis', 'godwin'))];
     }
+    // Return the last block in the chain
     get lastBlock() {
         return this.chain[this.chain.length - 1];
     }
-    mine(nonce) {
+    // Mine a block to confirm it as a transaction on the blockchain
+    mine(numOnlyUsedOnce) {
         let solution = 1;
-        console.log('⛏️ mining...');
+        console.log('🐢 Mining transaction...');
+        // Keep looping until solution is found
         while (true) {
             const hash = crypto.createHash('MD5');
-            hash.update((nonce + solution).toString()).end();
+            hash.update((numOnlyUsedOnce + solution).toString()).end();
             const attempt = hash.digest('hex');
+            // Add more 0's to make it harder
             if (attempt.substr(0, 4) === '0000') {
-                console.log(`Solved: ${solution}`);
+                console.log(`---> Solved transaction with solution: ${solution}. Block is confirmed!\n`);
                 return solution;
             }
             solution += 1;
         }
     }
+    // Add a block to the blockchain
     addBlock(transaction, senderPublicKey, signature) {
+        console.log("🐢 Sending TurtleCoin...");
+        // Verify a transaction before adding it
         const verifier = crypto.createVerify('SHA256');
         verifier.update(transaction.toString());
         const isValid = verifier.verify(senderPublicKey, signature);
+        // If it is valid, create a block, mine it and add it to the blockchain
         if (isValid) {
+            console.log("🐢 Transaction is valid!");
             const newBlock = new Block(this.lastBlock.hash, transaction);
-            this.mine(newBlock.nonce);
+            this.mine(newBlock.numOnlyUsedOnce);
             this.chain.push(newBlock);
         }
     }
 }
+// Singleton instance as we only want 1 chain
 Chain.instance = new Chain();
+// Wallet class
 class Wallet {
+    // Generate key pair when a new wallet is created
     constructor() {
         const keypair = crypto.generateKeyPairSync('rsa', {
             modulusLength: 2048,
@@ -89,6 +106,7 @@ class Wallet {
         this.privateKey = keypair.privateKey;
         this.publicKey = keypair.publicKey;
     }
+    // Send money from users wallet to another
     sendMoney(amount, payeePublicKey) {
         const transaction = new Transaction(amount, this.publicKey, payeePublicKey);
         const sign = crypto.createSign('SHA256');
@@ -97,11 +115,10 @@ class Wallet {
         Chain.instance.addBlock(transaction, this.publicKey, signature);
     }
 }
-//   Example usage
-const arun = new Wallet();
-const jess = new Wallet();
-const milli = new Wallet();
-arun.sendMoney(50, jess.publicKey);
-jess.sendMoney(23, milli.publicKey);
-milli.sendMoney(5, jess.publicKey);
+const agp = new Wallet();
+const jz = new Wallet();
+const jb = new Wallet();
+agp.sendMoney(50, jz.publicKey);
+jz.sendMoney(23, jb.publicKey);
+jb.sendMoney(5, jz.publicKey);
 console.log(Chain.instance);
