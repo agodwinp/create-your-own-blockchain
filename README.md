@@ -47,7 +47,11 @@ Now we want to set up a script that compiles our typescript code and constantly 
 
 #### 2. Transaction class
 
-`index.ts` will be the entry point for all of our source code for this blockchain and cryptocurrency. Open up this file and first import the built in Node JS library used for cryptography called `crypto` with this line:
+`index.ts` will be the entry point for all of our source code for this blockchain and cryptocurrency. Create this file in the root of your project and start the dev script with:
+
+    $ npm run dev
+
+so that our `index.js` file is constantly being compilesd. Now open up `index.ts` and import the built in Node JS library used for cryptography called `crypto` with this line:
 
     $ import * as crypto from crypto;
 
@@ -86,7 +90,7 @@ The `Block` class has 4 properties:
 - A timestamp
 - A `number only used once` AKA nonce
 
-The last of these properties refers to the first number that a blockchain miner needs to discover before solving for a block in the blockchain. Finding this number is extremely difficult, takes a lot of trial and error and a huge amount of computation. When a miner solves this computation, they are gifted cryptocurrency for their efforts. The reason why blocks need to be mined is because this effort of solving for a nonce validates each block (or set of transactions) on the blockchain. Therefore, by mining each block you're helping to secure and validate each transaction on the blockchain. Until a block has been mined, it is not considered as a valid transaction, hence the huge demand for mining!
+The last of these properties refers to the first number that a blockchain miner uses to discover the solution for confirming a block in the blockchain. Finding this number is extremely difficult, takes a lot of trial and error and a huge amount of computation. When a miner solves this computation, they are gifted cryptocurrency for their efforts. The reason why blocks need to be mined is because this effort of finding a solution validates each block on the blockchain. Therefore, by mining each block you're helping to secure and validate each transaction on the blockchain and the more times a block is confirmed, the better! Until a block has been mined, it is not considered as a valid transaction, hence the huge demand for mining!
 
 When the `Block` is initialised we want a hash of the block to be returned. To do this, we can implement a getter to first stringify the block and then to create a hash from it using the `SHA256` algorithm. Finally, we want to return this hash value as a hexidecimal string. The code for the `Block` class should look like this:
 
